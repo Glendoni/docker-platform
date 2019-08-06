@@ -1,72 +1,15 @@
-FROM php:7.3-alpine
+FROM phpdockerio/php71-fpm:latest
+WORKDIR "/application"
 
-# Install dev dependencies
-RUN apk add --no-cache --virtual .build-deps \
-    $PHPIZE_DEPS \
-    curl-dev \
-    imagemagick-dev \
-    libtool \
-    libxml2-dev \
-    postgresql-dev \
-    sqlite-dev
+# Fix debconf warnings upon build
+ARG DEBIAN_FRONTEND=noninteractive
 
-# Install production dependencies
-RUN apk add --no-cache \
-    bash \
-    curl \
-    g++ \
-    gcc \
-    git \
-    imagemagick \
-    libc-dev \
-    libpng-dev \
-    make \
-    mysql-client \
-    nodejs \
-    nodejs-npm \
-    yarn \
-    openssh-client \
-    postgresql-libs \
-    rsync \
-    zlib-dev \
-    libzip-dev
+# Install selected extensions and other stuff
+RUN apt-get update \
+    && apt-get -y --no-install-recommends install  php7.1-pgsql php7.1-gd php-redis \
+    && apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
-# Install PECL and PEAR extensions
-RUN pecl install \
-    imagick \
-    xdebug
-
-# Install and enable php extensions
-RUN docker-php-ext-enable \
-    imagick \
-    xdebug
-RUN docker-php-ext-configure zip --with-libzip
-RUN docker-php-ext-install \
-    curl \
-    iconv \
-    mbstring \
-    pdo \
-    pdo_mysql \
-    pdo_pgsql \
-    pdo_sqlite \
-    pcntl \
-    tokenizer \
-    xml \
-    gd \
-    zip \
-    bcmath
-
-# Install composer
-ENV COMPOSER_HOME /composer
-ENV PATH ./vendor/bin:/composer/vendor/bin:$PATH
-ENV COMPOSER_ALLOW_SUPERUSER 1
-RUN curl -s https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin/ --filename=composer
-
-# Install PHP_CodeSniffer
-RUN composer global require "squizlabs/php_codesniffer=*"
-
-# Cleanup dev dependencies
-RUN apk del -f .build-deps
-
-# Setup working directory
-WORKDIR /var/www
+# Install git
+RUN apt-get update \
+    && apt-get -y install git \
+    && apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
