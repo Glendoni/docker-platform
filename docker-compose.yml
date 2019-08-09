@@ -9,9 +9,9 @@ services:
       networks:
         testing_nete:
           ipv4_address: 172.28.1.8
-
     postgres:
-      image: postgres:9.5-alpine
+      image: postgres:11.4-alpine
+      restart: always
       container_name: ${PROJECT_NAME}-postgres
       volumes:
          - "./sourcefiles/postgres:/var/lib/postgresql/data"
@@ -22,8 +22,8 @@ services:
       ports:
        - "5432:5432"
       networks:
-            testing_nete:
-                ipv4_address: 172.28.1.5
+          testing_nete:
+            ipv4_address: 172.28.1.5
     webserver:
       image: nginx:alpine
       depends_on:
@@ -41,7 +41,6 @@ services:
       networks:
             testing_nete:
                 ipv4_address: 172.28.1.6
-
     php-fpm:
       build: sourcefiles/php-fpm
       container_name: ${PROJECT_NAME}-php-fpm
