@@ -10,7 +10,7 @@ services:
         testing_nete:
           ipv4_address: 172.28.1.8
     postgres:
-      image: postgres:11.4-alpine
+      image: postgres:latest
       restart: always
       container_name: ${PROJECT_NAME}-postgres
       volumes:
